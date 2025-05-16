@@ -1,26 +1,14 @@
-# FELICE-MD
-
-Base Bot WhatsApp (Case)
-
+# DiF-L-wabot
 
 ## Run Locally
 
 Clone the project
 
 ```bash
-  git clone https://github.com/NCTea/Felice-MD
-```
-
-Go to the project directory
-
-```bash
-  cd Felice-MD
-```
-
-Install dependencies
-
-```bash
+  git clone https://github.com/Enex-kblm/DIG-L-wabot.git
+  cd DIG-L-wabot
   npm install
+  npm start
 ```
 
 Install dependencies **recommended**
@@ -28,18 +16,9 @@ Install dependencies **recommended**
  npm install --force
 ```
 
-Start the server
-
-```bash
-  npm start
-```
-
-
-
-
 ## Features
 
-- Menu
+- IP & Port scanner
 
 
 ## Thanks to
