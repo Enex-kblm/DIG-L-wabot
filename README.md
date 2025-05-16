@@ -34,4 +34,6 @@ This project is used by the following companies:
 ## Authors
 
 - [@NCTea](https://github.com/NCTea)
+- [@Enex-kblm](https://github.com/Enex-kblm)
+- [@FeliceSama](https://github.com/FeliceSama)
 
