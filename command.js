@@ -3,7 +3,8 @@ const fs = require("fs")
 
 const {
     getGroupAdmins,
-} = require("./lib/library.js")
+} = require("./lib/library.js");
+const { args, connected } = require("process");
 
 module.exports = async (fell, m) => {
     try {
@@ -55,9 +56,48 @@ module.exports = async (fell, m) => {
         if (isCmd) console.log("~> [CMD]", command, "from", pushname, "in", m.isGroup ? "Group Chat" : "Private Chat", '[' + args.length + ']');
 
         switch (command) {
-            case 'menu':
-                m.reply('Hola')
+            case 'woii':
+                m.reply('apaan?')
                 break;
+
+            case 'scan':
+                if (!args[0]) return m.reply(`contoh penggunaan: ${prefix}scan example.com`)
+
+                const { spawn } = require('child_process')
+                const python = spawn('python3', ["python/ip_scanner.py", args[0]]);
+
+                let output = '';
+
+                python.stdout.on('data', (data) => {
+                    output += data.toString();
+                });
+
+                python.stderr.on('data', (data) => {
+                    console.error(`[python error] ${data}`);
+                    m.reply('error mek, coba baca lognya');
+                });
+
+                python.on("close", (code) => {
+                    try {
+                        const result = JSON.parse(output);
+
+                        if (result.error) {
+                            m.reply(`error: ${result.error}`);
+                        } else {
+                            let message = `hasil scan\n\n`;
+                            message += `hostname: ${args[0]}\n`;
+                            message += `ip address: ${result.ip || 'tidak terdeteksi'}\n`;
+                            message += `port: ${result.open_ports?.join(', ') || 'tidak ada'}\n`;
+                        
+                            m.reply(message);
+                        }
+                    } catch (e) {
+                        console.error(`[parse error] ${e}`);
+                        m.reply("gagal memproses hasil scan. format output tidak valid")
+                    }
+                });
+                break;
+
 
             default:
                 if (budy.startsWith('=>')) {
