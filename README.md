@@ -19,6 +19,7 @@ Install dependencies **recommended**
 ## Features
 
 - IP & Port scanner
+- IPlocation
 
 
 ## Thanks to
