@@ -1,4 +1,4 @@
-# DiF-L-wabot
+# DiG-L-wabot
 
 ## Run Locally
 
