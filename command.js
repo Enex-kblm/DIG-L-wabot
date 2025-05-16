@@ -56,9 +56,6 @@ module.exports = async (fell, m) => {
         if (isCmd) console.log("~> [CMD]", command, "from", pushname, "in", m.isGroup ? "Group Chat" : "Private Chat", '[' + args.length + ']');
 
         switch (command) {
-            case 'woii':
-                m.reply('apaan?')
-                break;
 
             case 'scan':
                 if (!args[0]) return m.reply(`contoh penggunaan: ${prefix}scan example.com`)
@@ -96,6 +93,34 @@ module.exports = async (fell, m) => {
                         m.reply("gagal memproses hasil scan. format output tidak valid")
                     }
                 });
+                break;
+
+                case 'iplocation':
+                if (!args[0]) return m.reply('Contoh penggunaan: .iplocation 8.8.8.8');
+                
+                try {
+                    const ip = args[0];
+                    const response = await fetch(`http://ip-api.com/json/${ip}`).then(res => res.json());
+                    
+                    if (response.status === 'success') {
+                        const lokasi = 
+                            `🌍 *Geolocation Info* 🌍\n\n` +
+                            `▫️ *IP*: ${ip}\n` +
+                            `▫️ *Negara*: ${response.country} (${response.countryCode})\n` +
+                            `▫️ *Region*: ${response.regionName} (${response.region})\n` +
+                            `▫️ *Kota*: ${response.city}\n` +
+                            `▫️ *ZIP*: ${response.zip}\n` +
+                            `▫️ *ISP*: ${response.isp}\n` +
+                            `▫️ *Koordinat*: ${response.lat}, ${response.lon}\n` +
+                            `▫️ *Zona Waktu*: ${response.timezone}`;
+                        
+                        m.reply(lokasi);
+                    } else {
+                        m.reply(`❌ Gagal: ${response.message || 'Tidak dapat menemukan lokasi'}`);
+                    }
+                } catch (e) {
+                    m.reply(`🚨 Error: ${e.message}`);
+                }
                 break;
 
 
