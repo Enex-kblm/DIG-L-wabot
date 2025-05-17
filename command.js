@@ -63,7 +63,7 @@ case "help": {
         m.reply(
             `🛠️ *Bot Feature Menu*:\n` +
             `• ${prefix}scan <domain>\n` +
-            `• ${prefix}dns <domain> [A|AAAA|MX|TXT|CNAME|NS]\n` +
+            `• ${prefix}dns <domain> [ A | AAAA | MX | TXT | CNAME | NS ]\n` +
             `• ${prefix}portscan <ip> [range]\n` +
             `• ${prefix}whois <domain>\n` +
             `• ${prefix}iplocation <ip>\n` +
@@ -75,7 +75,7 @@ case "help": {
         m.reply(
             `🛠️ *Menu Fitur Bot*:\n` +
             `• ${prefix}scan <domain>\n` +
-            `• ${prefix}dns <domain> [A|AAAA|MX|TXT|CNAME|NS]\n` +
+            `• ${prefix}dns <domain> [ A | AAAA | MX | TXT | CNAME | NS ]\n` +
             `• ${prefix}portscan <ip> [range]\n` +
             `• ${prefix}whois <domain>\n` +
             `• ${prefix}iplocation <ip>\n` +
