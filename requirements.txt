@@ -3,3 +3,4 @@ python-nmap
 requests
 beautifulsoup4
 python-whois
+requests

