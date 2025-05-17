@@ -5,11 +5,11 @@
 Clone the project
 
 ```bash
-  git clone https://github.com/Enex-kblm/DIG-L-wabot.git
-  cd DIG-L-wabot
-  npm install
-  pip install -r requirements.txt
-  npm start
+git clone https://github.com/Enex-kblm/DIG-L-wabot.git
+cd DIG-L-wabot
+npm install
+pip install -r requirements.txt
+npm start
 ```
 
 Install dependencies **recommended**
