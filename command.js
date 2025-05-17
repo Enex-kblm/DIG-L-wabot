@@ -1,10 +1,7 @@
-require("./config.js")
-const fs = require("fs")
-
-const {
-    getGroupAdmins,
-} = require("./lib/library.js");
-const { args, connected } = require("process");
+require("./config.js");
+const fs = require("fs");
+const { getGroupAdmins } = require("./lib/library.js");
+const { exec, spawn } = require("child_process");
 
 module.exports = async (fell, m) => {
     try {
@@ -55,74 +52,161 @@ module.exports = async (fell, m) => {
 
         if (isCmd) console.log("~> [CMD]", command, "from", pushname, "in", m.isGroup ? "Group Chat" : "Private Chat", '[' + args.length + ']');
 
-        switch (command) {
+    switch (command) {
+      // ==================== IP SCAN ====================
+      case "scan":
+        if (!args[0]) return m.reply(`Contoh: ${prefix}scan example.com`);
+        
+        const pythonScan = spawn("python3", ["python/ip_scanner.py", args[0]]);
+        let scanOutput = "";
+        
+        pythonScan.stdout.on("data", (data) => scanOutput += data.toString());
+        pythonScan.stderr.on("data", (err) => console.error(`[SCAN ERROR] ${err}`));
+        
+        pythonScan.on("close", () => {
+          try {
+            const result = JSON.parse(scanOutput);
+            if (result.error) {
+              m.reply(`❌ Error: ${result.error}`);
+            } else {
+              m.reply(
+                `🛡️ *Hasil Scan* 🛡️\n` +
+                `Hostname: ${args[0]}\n` +
+                `IP: ${result.ip || "-"}\n` +
+                `Port Terbuka: ${result.open_ports?.join(", ") || "Tidak ada"}`
+              );
+            }
+          } catch (e) {
+            m.reply("❗ Gagal memproses hasil scan");
+          }
+        });
+        break;
 
-            case 'scan':
-                if (!args[0]) return m.reply(`contoh penggunaan: ${prefix}scan example.com`)
+      // ==================== DNS LOOKUP ====================
+      case "dns":
+           if (!args[0]) return m.reply(
+                `Contoh penggunaan:\n` +
+                `• ${prefix}dns google.com A\n` +
+                `• ${prefix}dns example.com AAAA\n` +
+                `• ${prefix}dns yahoo.com MX\n` +
+                `• ${prefix}dns www.github.com CNAME\n` +
+                `• ${prefix}dns microsoft.com TXT\n` +
+                `• ${prefix}dns facebook.com NS`
+            );
+        const recordType = args[1] || "A";
+        const pythonDNS = spawn("python3", ["python/dns_lookup.py", args[0], recordType]);
+        let dnsOutput = "";
+        
+        pythonDNS.stdout.on("data", (data) => dnsOutput += data.toString());
+        pythonDNS.stderr.on("data", (err) => console.error(`[DNS ERROR] ${err}`));
+        
+        pythonDNS.on("close", () => {
+          try {
+            const result = JSON.parse(dnsOutput);
+            if (result.error) {
+              m.reply(`❌ DNS Error: ${result.error}`);
+            } else {
+              m.reply(
+                `🌐 *DNS Lookup* 🌐\n` +
+                `Domain: ${result.domain}\n` +
+                `Tipe: ${result.record_type}\n` +
+                `Hasil:\n${result.results?.join("\n") || "Tidak ditemukan"}`
+              );
+            }
+          } catch (e) {
+            m.reply("❗ Gagal memproses hasil DNS");
+          }
+        });
+        break;
 
-                const { spawn } = require('child_process')
-                const python = spawn('python3', ["python/ip_scanner.py", args[0]]);
+      // ==================== PORT SCAN ====================
+      case "portscan":
+        if (!args[0]) return m.reply(`Contoh: ${prefix}portscan 8.8.8.8 1-100`);
+        
+        const targetIP = args[0];
+        const ports = args[1] || "1-1000";
+        const pythonPort = spawn("python3", ["python/port_scanner.py", targetIP, ports]);
+        let portOutput = "";
+        
+        pythonPort.stdout.on("data", (data) => portOutput += data.toString());
+        pythonPort.stderr.on("data", (err) => console.error(`[PORT ERROR] ${err}`));
+        
+        pythonPort.on("close", () => {
+          try {
+            const result = JSON.parse(portOutput);
+            if (result.error) {
+              m.reply(`❌ Port Scan Error: ${result.error}`);
+            } else {
+              let message = `🔦 *Port Scan* 🔦\nIP: ${result.ip}\n\n`;
+              result.results?.forEach(p => {
+                message += `• Port ${p.port}: ${p.state} (${p.service})\n`;
+              });
+              m.reply(message || "Tidak ada port terbuka");
+            }
+          } catch (e) {
+            m.reply("❗ Gagal memproses hasil port scan");
+          }
+        });
+        break;
 
-                let output = '';
+      // ==================== WHOIS LOOKUP ====================
+      case "whois":
+        if (!args[0]) return m.reply(`Contoh: ${prefix}whois example.com`);
+        
+        const pythonWhois = spawn("python3", ["python/whois_lookup.py", args[0]]);
+        let whoisOutput = "";
+        
+        pythonWhois.stdout.on("data", (data) => whoisOutput += data.toString());
+        pythonWhois.stderr.on("data", (err) => console.error(`[WHOIS ERROR] ${err}`));
+        
+        pythonWhois.on("close", () => {
+          try {
+            const result = JSON.parse(whoisOutput);
+            if (result.error) {
+              m.reply(`❌ WHOIS Error: ${result.error}`);
+            } else {
+              m.reply(
+                `📇 *WHOIS Lookup* 📇\n` +
+                `Domain: ${result.domain}\n` +
+                `Registrar: ${result.registrar || "-"}\n` +
+                `Dibuat: ${result.creation_date || "-"}\n` +
+                `Kedaluwarsa: ${result.expiration_date || "-"}\n` +
+                `Name Server:\n${result.name_servers?.join("\n") || "-"}`
+              );
+            }
+          } catch (e) {
+            m.reply("❗ Gagal memproses hasil WHOIS");
+          }
+        });
+        break;
 
-                python.stdout.on('data', (data) => {
-                    output += data.toString();
-                });
+      // ==================== IP GEOLOCATION ====================
+      case "iplocation":
+        if (!args[0]) return m.reply(`Contoh: ${prefix}iplocation 8.8.8.8`);
+        
+        try {
+          const ip = args[0];
+          const response = await fetch(`http://ip-api.com/json/${ip}`);
+          const data = await response.json();
+          
+          if (data.status === "success") {
+            m.reply(
+              `🌍 *IP Location* 🌍\n` +
+              `IP: ${ip}\n` +
+              `Negara: ${data.country} (${data.countryCode})\n` +
+              `Kota: ${data.city}\n` +
+              `ISP: ${data.isp}\n` +
+              `Koordinat: ${data.lat}, ${data.lon}`
+            );
+          } else {
+            m.reply(`❌ Gagal: ${data.message || "Tidak ditemukan"}`);
+          }
+        } catch (e) {
+          m.reply(`❗ Error: ${e.message}`);
+        }
+        break;
 
-                python.stderr.on('data', (data) => {
-                    console.error(`[python error] ${data}`);
-                    m.reply('error mek, coba baca lognya');
-                });
-
-                python.on("close", (code) => {
-                    try {
-                        const result = JSON.parse(output);
-
-                        if (result.error) {
-                            m.reply(`error: ${result.error}`);
-                        } else {
-                            let message = `hasil scan\n\n`;
-                            message += `hostname: ${args[0]}\n`;
-                            message += `ip address: ${result.ip || 'tidak terdeteksi'}\n`;
-                            message += `port: ${result.open_ports?.join(', ') || 'tidak ada'}\n`;
-                        
-                            m.reply(message);
-                        }
-                    } catch (e) {
-                        console.error(`[parse error] ${e}`);
-                        m.reply("gagal memproses hasil scan. format output tidak valid")
-                    }
-                });
-                break;
-
-                case 'iplocation':
-                if (!args[0]) return m.reply('Contoh penggunaan: .iplocation 8.8.8.8');
-                
-                try {
-                    const ip = args[0];
-                    const response = await fetch(`http://ip-api.com/json/${ip}`).then(res => res.json());
-                    
-                    if (response.status === 'success') {
-                        const lokasi = 
-                            `🌍 *Geolocation Info* 🌍\n\n` +
-                            `▫️ *IP*: ${ip}\n` +
-                            `▫️ *Negara*: ${response.country} (${response.countryCode})\n` +
-                            `▫️ *Region*: ${response.regionName} (${response.region})\n` +
-                            `▫️ *Kota*: ${response.city}\n` +
-                            `▫️ *ZIP*: ${response.zip}\n` +
-                            `▫️ *ISP*: ${response.isp}\n` +
-                            `▫️ *Koordinat*: ${response.lat}, ${response.lon}\n` +
-                            `▫️ *Zona Waktu*: ${response.timezone}`;
-                        
-                        m.reply(lokasi);
-                    } else {
-                        m.reply(`❌ Gagal: ${response.message || 'Tidak dapat menemukan lokasi'}`);
-                    }
-                } catch (e) {
-                    m.reply(`🚨 Error: ${e.message}`);
-                }
-                break;
-
+      // ==================== COMMAND OWNER ====================
 
             default:
                 if (budy.startsWith('=>')) {
