@@ -24,7 +24,7 @@ Ensure you have the following installed:
 
 * Node.js (version 14 or later)
 * npm (Node package manager)
-* Python 3 (if the bot uses Python scripts)
+* Python 3 (for some tools and scripts)
 
 ### 📥 Step 1: Clone the Repository
 
