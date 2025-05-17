@@ -8,6 +8,21 @@ Clone the project
   git clone https://github.com/Enex-kblm/DIG-L-wabot.git
   cd DIG-L-wabot
   npm install
+  pip install -r requirements.txt
+  npm start
+```
+
+For termux
+
+```bash
+  pkg update && pkg upgrade -y
+  pkg install git python nodejs clang libffi libffi-dev openssl openssl-dev -y
+  pkg install build-essential
+  git clone https://github.com/Enex-kblm/DIG-L-wabot.git
+  cd DIG-L-wabot
+  npm install
+  pip install --upgrade pip
+  pip install -r requirements-termux.txt
   npm start
 ```
 
