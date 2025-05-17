@@ -12,22 +12,6 @@ Clone the project
   npm start
 ```
 
-For termux
-
-```bash
-  pkg update && pkg upgrade -y
-  pkg install git python nodejs clang libffi openssl -y
-  pkg install libxml2 libxml2-dev libxslt libxslt-dev -y
-  pkg install nmap -y
-  git clone https://github.com/Enex-kblm/DIG-L-wabot.git
-  cd DIG-L-wabot
-  npm install
-  pip install --upgrade pip
-  pip install wheel setuptools
-  pip install -r requirements-termux.txt
-  npm start
-```
-
 Install dependencies **recommended**
 ```bash
  npm install --force
