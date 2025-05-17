@@ -23,6 +23,9 @@ Install dependencies **recommended**
 - Port scanner (nmap)
 - whois lookup
 - DNS lookup (A, AAAA, MX, NS, SOA, TXT)
+- SSL checker
+- vulnerability scanner
+- change language
 
 ## Thanks to
 

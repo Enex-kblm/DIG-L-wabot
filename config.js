@@ -1,4 +1,25 @@
 const fs = require("fs")
+const SETTINGS_PATH = "language.json";
+
+function getSettings() {
+  try {
+    return JSON.parse(fs.readFileSync(SETTINGS_PATH));
+  } catch {
+    return { language: "id" };
+  }
+}
+
+function setLanguage(langCode) {
+  const settings = getSettings();
+  settings.language = langCode;
+  fs.writeFileSync(SETTINGS_PATH, JSON.stringify(settings, null, 2));
+}
+
+module.exports = {
+  getSettings,
+  setLanguage
+};
+
 
 global.owner = ["628xxxxxx"]
 
