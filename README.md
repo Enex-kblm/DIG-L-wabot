@@ -20,7 +20,9 @@ Install dependencies **recommended**
 
 - IP & Port scanner
 - IPlocation
-
+- Port scanner (nmap)
+- whois lookup
+- DNS lookup (A, AAAA, MX, NS, SOA, TXT)
 
 ## Thanks to
 
